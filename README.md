@@ -22,6 +22,6 @@
 - `测试代码/`：用于课程设计验收和功能验证的 PL/0 示例程序。
 - `课设报告.pdf`：课程设计报告。
 
-## 许可证
+## License
 
-本仓库采用 MIT License 开源。
+This repository is licensed under the MIT License.
