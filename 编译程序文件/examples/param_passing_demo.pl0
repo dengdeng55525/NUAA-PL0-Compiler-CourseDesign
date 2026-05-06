@@ -1,0 +1,22 @@
+program paramdemo;
+var x, y;
+
+procedure add(a, b);
+var s;
+begin
+    s := a + b;
+    write(s)
+end;
+
+procedure swapprint(a, b);
+begin
+    write(b);
+    write(a)
+end;
+
+begin
+    read(x, y);
+    call add(x, y);
+    call add(x + 1, y + 2);
+    call swapprint(x, y)
+end

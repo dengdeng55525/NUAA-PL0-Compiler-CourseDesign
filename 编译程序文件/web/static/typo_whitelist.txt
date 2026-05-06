@@ -1,0 +1,35 @@
+# Keyword typo whitelist (editable)
+# Format: <keyword>: typo1, typo2, typo3
+# Notes:
+# - Keywords are case-insensitive; typos are matched case-insensitively.
+# - If enabled in UI, the auto-fix prefers replacing the typo token itself
+#   (e.g. doo -> do), instead of inserting a new keyword.
+
+then: the, thn
+
+do: doo, od
+
+else: els, elese
+
+begin: begn, bgin
+
+end: edn
+
+while: whlie, wile
+
+procedure: procdure, procedre
+
+program: progam, prgram
+
+const: cnst
+
+var: vra
+
+call: cal
+
+read: raed
+
+write: wirte
+
+odd: oddd
+

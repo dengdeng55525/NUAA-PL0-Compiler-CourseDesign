@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PL/0 在线编译器</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="hero">
+      <div class="hero__badge">PL/0</div>
+      <h1>PL/0 在线编译器</h1>
+      <p>即时编译、自动恢复与可视化调试，帮助你快速验证 PL/0 语言的想法。</p>
+      <p>南京航空航天大学编译原理课程设计&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;作者： 丁俊泽</p>
+      <div class="hero__meta">
+        <span class="hero__pill">语法高亮</span>
+        <span class="hero__pill">错误定位</span>
+        <span class="hero__pill">结构化输出</span>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="column column--primary">
+        <article class="card editor-card">
+          <div class="card__header">
+            <div>
+              <p class="eyebrow">源代码</p>
+              <h2>编辑与高亮</h2>
+            </div>
+            <div class="quick-actions">
+              <input id="file_pl0" type="file" accept=".pl0" style="display:none" />
+              <button id="import_pl0" class="ghost-btn" title="导入本地 .pl0 文件">导入PL0</button>
+              <button id="theme_toggle" class="ghost-btn" title="切换日/夜模式">夜间模式</button>
+              <button id="undo_fix" class="ghost-btn" title="撤销自动修复">撤销修复</button>
+              <button id="run" class="accent-btn">编译并运行</button>
+            </div>
+          </div>
+
+          <div class="editor_wrap editor-shell">
+            <pre id="highlight" class="highlight" aria-hidden="true"></pre>
+            <textarea id="source" spellcheck="false">program sum;
+var x,y;
+begin
+  read(x,y);
+  x := x + y;
+  write(x)
+end
+</textarea>
+          </div>
+
+          <div class="control-bar">
+            <label class="field">
+              <span>输入（逗号分隔）</span>
+              <input id="inputs" placeholder="3,5">
+            </label>
+
+            <div class="options-card" aria-label="编译选项">
+              <div class="options-card__title">选项</div>
+              <div class="options-grid">
+                <label class="field">
+                  <span>编译模式</span>
+                  <select id="compile_mode" style="padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-strong);font-family:var(--font);font-size:14px;">
+                    <option value="classic" selected>当前模式（兼容/按现有逻辑执行）</option>
+                    <option value="strict">严格一趟扫描（parser 驱动 lexer/codegen；成功才自动运行）</option>
+                  </select>
+                </label>
+
+                <label class="field checkbox-field">
+                  <input type="checkbox" id="auto_recover" checked>
+                  <span>自动恢复</span>
+                </label>
+                <label class="field checkbox-field">
+                  <input type="checkbox" id="typo_fix" checked>
+                  <span>关键字拼写纠错（如 the→then）</span>
+                </label>
+                <label class="field checkbox-field">
+                  <input type="checkbox" id="enable_opt" checked>
+                  <span>启用优化器（peephole，低风险）</span>
+                </label>
+                <label class="field checkbox-field">
+                  <input type="checkbox" id="diag_v2" checked>
+                  <span>统一诊断格式（Diagnostics v2）</span>
+                </label>
+                <label class="field checkbox-field">
+                  <input type="checkbox" id="include_stats" checked>
+                  <span>显示统计</span>
+                </label>
+                <label class="field checkbox-field">
+                  <input type="checkbox" id="show_opt_viz" checked>
+                  <span>优化器可视化（before/after + 变更说明）</span>
+                </label>
+                <label class="field checkbox-field">
+                  <input type="checkbox" id="include_symtab" checked>
+                  <span>显示符号表（SymTable）</span>
+                </label>
+                <label class="field checkbox-field">
+                  <input type="checkbox" id="include_vm_trace">
+                  <span>可视化程序栈/静态链（VM Trace，最多 2000 步）</span>
+                </label>
+              </div>
+            </div>
+
+            <label class="field">
+              <span>右侧输出模式</span>
+              <select id="output_view" style="padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-strong);font-family:var(--font);font-size:14px;">
+                <option value="structured" selected>结构化（JSON）</option>
+                <option value="flat">平铺（一行一条）</option>
+                <option value="line">按行（line -> tokens）</option>
+              </select>
+            </label>
+          </div>
+
+          <section id="error" class="error">
+            <div class="error__title">问题与诊断</div>
+            <div id="err_list"></div>
+          </section>
+        </article>
+      </section>
+
+      <section class="column column--secondary">
+        <article class="card outputs-card">
+          <div class="card__header">
+            <div>
+              <p class="eyebrow">调试结果</p>
+              <h2>编译反馈</h2>
+            </div>
+          </div>
+
+          <div class="panels-grid">
+            <div class="panel">
+              <header class="panel__header">
+                <h3>统计</h3>
+                <span class="panel__tag">Stats</span>
+              </header>
+              <pre id="stats"></pre>
+            </div>
+            <div class="panel">
+              <header class="panel__header">
+                <h3>分词</h3>
+                <span class="panel__tag">Lexer</span>
+              </header>
+              <pre id="tokens"></pre>
+            </div>
+            <div class="panel">
+              <header class="panel__header">
+                <h3>语法树 (AST)</h3>
+                <span class="panel__tag">Parser</span>
+              </header>
+              <pre id="ast"></pre>
+            </div>
+            <div class="panel">
+              <header class="panel__header">
+                <h3>中间代码</h3>
+                <span class="panel__tag">IR</span>
+              </header>
+              <pre id="code"></pre>
+            </div>
+            <div class="panel">
+              <header class="panel__header">
+                <h3>运行结果</h3>
+                <span class="panel__tag">Runtime</span>
+              </header>
+              <pre id="output"></pre>
+            </div>
+            <div class="panel">
+              <header class="panel__header">
+                <h3>错误堆栈</h3>
+                <span class="panel__tag">Trace</span>
+              </header>
+              <pre id="trace"></pre>
+            </div>
+            <div class="panel">
+              <header class="panel__header">
+                <h3>优化器可视化</h3>
+                <span class="panel__tag">Opt</span>
+              </header>
+              <pre id="optviz"></pre>
+            </div>
+            <div class="panel">
+              <header class="panel__header">
+                <h3>符号表</h3>
+                <span class="panel__tag">SymTable</span>
+              </header>
+              <pre id="symtab"></pre>
+            </div>
+            <div class="panel">
+              <header class="panel__header">
+                <h3>程序栈 / 静态链追踪</h3>
+                <span class="panel__tag">VM Trace</span>
+              </header>
+              <pre id="vmtrace"></pre>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Made for 南京航空航天大学 PL/0 课程设计</p>
+      <p>作者： 丁俊泽</p>
+    </footer>
+  </div>
+  <!-- Cache-bust app.js to ensure frontend updates (e.g., VM Trace Values view) take effect immediately -->
+  <script src="/static/app.js?v=20260105"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+program nested2;
+var g;
+
+procedure outer;
+var x;
+
+procedure inner;
+begin
+    x := x + 1;
+    g := g + 10;
+    write(x);
+    write(g)
+end;
+
+begin
+    x := 0;
+    call inner;
+    call inner
+end;
+
+begin
+    g := 0;
+    call outer;
+    write(g)
+end

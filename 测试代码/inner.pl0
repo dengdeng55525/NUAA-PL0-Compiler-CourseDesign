@@ -1,0 +1,19 @@
+program p;
+var x;
+
+procedure outer();
+var x;
+  procedure inner();
+  begin
+    x := x + 1;
+    write(x)
+  end;
+begin
+  x := 10;
+  call inner();
+  call inner()
+end;
+
+begin
+  call outer()
+end

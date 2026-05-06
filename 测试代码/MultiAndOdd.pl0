@@ -1,0 +1,29 @@
+program example;
+const
+    max := 100,
+    min := 1;
+var
+    x, y, result;
+
+procedure multiply(a, b);
+var temp;
+begin
+    temp := a * b;
+    result := temp
+end;
+
+begin
+    read(x, y);
+    if x > y then
+        call multiply(x, y)
+    else
+        call multiply(y, x);
+    write(result);
+    
+    while x <= max do
+    begin
+        x := x + 1;
+        if odd x then
+            write(x)
+    end
+end

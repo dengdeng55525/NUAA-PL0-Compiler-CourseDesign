@@ -1,0 +1,41 @@
+# 关键字拼写纠错白名单（typo → keyword）
+#
+# 说明（严格规则）：
+# - 仅当“行尾最后一个英文单词”或“出错 token 本身”完全匹配某个 typo 时才替换。
+# - 不做模糊匹配/编辑距离，避免把正常变量名误改成关键字。
+# - 仅在前端勾选“关键字拼写纠错”并点击“应用修复”时生效。
+#
+# 格式：
+#   keyword: typo1, typo2, typo3
+# - keyword 必须是 PL/0 关键字（小写）
+# - typo 也建议用小写；匹配时不区分大小写
+# - # 开头为注释行
+
+then: the, thn
+
+do: od, doo
+
+else: els, elese
+
+begin: begn, bgin
+
+end: edn
+
+while: whlie, wile
+
+procedure: procdure, procedre
+
+program: progam, prgram
+
+const: cnst
+
+var: vra
+
+call: cal
+
+read: raed
+
+write: wirte
+
+odd: oddd
+

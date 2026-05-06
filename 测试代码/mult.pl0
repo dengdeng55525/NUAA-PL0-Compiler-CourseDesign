@@ -1,0 +1,30 @@
+program example;
+const
+    max := 100,
+    pi := 314;
+var
+    x, y, sum;
+
+procedure multiply(a, b);
+var result;
+begin
+    result := a * b;
+    write(result)
+end;
+
+begin
+    read(x, y);
+    sum := x + y;
+    
+    if sum > max then
+        write(sum)
+    else
+        call multiply(x, y);
+    
+    while x < 10 do
+    begin
+        x := x + 1;
+        if odd x then
+            write(x)
+    end
+end
